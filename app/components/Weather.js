@@ -17,8 +17,15 @@ export default class Weather extends Component {
   }
 
   render() {
+    var data = this.props.dataLesson;
     return (
       <Container>
+        <Header>
+          <Button transparent onPress={Actions.pop}>
+              <Icon name='ios-arrow-back' /> Back
+          </Button>
+          <Title>{data.title}</Title>
+        </Header>
         <Content>
           <Text>
             Hello world!
