@@ -25,12 +25,12 @@ export default class Dashboard extends Component {
     return this.state.lesson.map(function(data, index) {
       return(
         <Col style={styles.colLesson}>
-          <Button transparent style={styles.itemLesson} onPress={()=>{
+          <Button transparent block style={styles.itemLesson} onPress={()=>{
             var actionName = Actions[data.component];
             return actionName({dataLesson: data});
           }}>
-              <Icon size={data.size} name={data.icon} style={[{color:data.color}]}/>
-              <Text>{data.title}</Text>
+            <Icon name={data.icon} style={[{color:data.color}]}/>
+            {data.title}
           </Button>
         </Col>
       );
@@ -54,7 +54,7 @@ export default class Dashboard extends Component {
             <Row>{dataLesson}</Row>
           </Grid>
         </Content>
-    </Container>
+      </Container>
     );
   };
 
@@ -65,13 +65,13 @@ var styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#cccccc',
     borderBottomWidth: 1,
-    borderBottomColor: '#cccccc'
+    borderBottomColor: '#cccccc',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   itemLesson:{
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap:"wrap",
     paddingTop: 10,
-    paddingBottom: 10
-  }
+    paddingBottom: 10,
+    flex: 1
+  },
 });
