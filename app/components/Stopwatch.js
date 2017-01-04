@@ -28,7 +28,7 @@ export default class Stopwatch extends Component {
         </Header>
         <Content>
           <WatchResult totalTime="00:00:00.00"/>
-          <WatchControl textBtnEnd="Stop" textBtnStart="Start" />
+          <WatchControl />
           <WatchRecord />
         </Content>
     </Container>
@@ -47,21 +47,50 @@ class WatchResult extends Component {
 }
 
 class WatchControl extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      disabledBtnEnd: true,
+      startWatch: false,
+      textBtnEnd: 'Lap',
+      textBtnStart: 'Start'
+    };
+  }
+  _startWatch(){
+    if (this.state.startWatch) {
+      this.setState({
+        textBtnStart: 'Start',
+        disabledBtnEnd: true,
+        startWatch: false,
+      });
+    }else{
+      this.setState({
+        textBtnStart: 'Stop',
+        disabledBtnEnd: false,
+        startWatch: true,
+      });
+    }
+  }
+
+  _addLap(){
+
+  }
+
   render() {
     return (
       <View>
         <Grid>
           <Col>
             <Row style={watchControl.rowBtn}>
-              <Button rounded bordered disabled style={watchControl.btnEnd}>
-                {this.props.textBtnEnd}
+              <Button rounded bordered disabled={this.state.disabledBtnEnd} style={watchControl.btnEnd} onPress={()=>this._addLap()}>
+                {this.state.textBtnEnd}
               </Button>
             </Row>
           </Col>
           <Col>
             <Row style={watchControl.rowBtn}>
-              <Button rounded bordered success style={watchControl.btnStart}>
-                {this.props.textBtnStart}
+              <Button rounded bordered success style={watchControl.btnStart} onPress={()=>this._startWatch()}>
+                {this.state.textBtnStart}
               </Button>
             </Row>
           </Col>
@@ -81,7 +110,6 @@ class WatchRecord extends Component {
         {title:"",time:""},
         {title:"",time:""},
         {title:"",time:""},
-        {title:"",time:""},
         {title:"",time:""}
       ]
     };
@@ -94,8 +122,8 @@ class WatchRecord extends Component {
           renderRow={(record) => {
             return (
               <ListItem>
-                <Text style={{textAlign: 'left', flex: 1}}>{record.title} AAA</Text>
-                <Text style={{textAlign: 'right', flex: 1}}>{record.time}00:00.00</Text>
+                <Text style={{textAlign: 'left', flex: 1}}>{record.title}</Text>
+                <Text style={{textAlign: 'right', flex: 1}}>{record.time}</Text>
               </ListItem>
             )
           }
