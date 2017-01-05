@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
+  ScrollView
 } from 'react-native';
 import {
    Container, Header, Title, Content, Footer, FooterTab, Button, Icon, View, H1,
@@ -27,50 +28,48 @@ export default class Stopwatch extends Component {
       ]
 
     };
-
     this.running = false;
+    this.time = 0;
     this.times = [ 0, 0, 0];
-    this.running = false;
   }
 
   _startWatch() {
-    if (!this.time) this.time = (new Date()).getTime();
     if (!this.running) {
         this.running = true;
-        setInterval(this.__step.bind(this));
+        if (!this.time) this.time = (new Date()).getTime();
+        //let times = [ 0, 0, 0];
+        let interval = setInterval(
+          () => {
+            if (!this.running) {
+              clearInterval(interval)
+              return;
+            }
+
+            let timestamp = (new Date()).getTime();
+            let diff = timestamp - this.time;
+            // Hundredths of a second are 100 ms
+            this.times[2] += diff / 10;
+            // Seconds are 100 hundredths of a second
+            if (this.times[2] >= 100) {
+                this.times[1] += 1;
+                this.times[2] -= 100;
+            }
+            // Minutes are 60 seconds
+            if (this.times[1] >= 60) {
+                this.times[0] += 1;
+                this.times[1] -= 60;
+            }
+
+            this.time = timestamp;
+
+            this.setState({
+              totalTime: this.__format(this.times)
+            });
+          }
+        );
         // setImmediate(this.__step.bind(this));
 
     }
-  }
-
-  __step(timestamp) {
-    timestamp = (new Date()).getTime();
-    if (!this.running) return;
-    this.__calculate(timestamp);
-    this.time = timestamp;
-    this.__assignTimer();
-    // setImmediate(this.__step.bind(this));
-  }
-  __calculate(timestamp) {
-    var diff = timestamp - this.time;
-    // Hundredths of a second are 100 ms
-    this.times[2] += diff / 10;
-    // Seconds are 100 hundredths of a second
-    if (this.times[2] >= 100) {
-        this.times[1] += 1;
-        this.times[2] -= 100;
-    }
-    // Minutes are 60 seconds
-    if (this.times[1] >= 60) {
-        this.times[0] += 1;
-        this.times[1] -= 60;
-    }
-  }
-  __assignTimer(){
-    let timing = this.__format(this.times);
-    this.setState({
-      totalTime: timing
-    });
   }
   __format(times) {
     return `\
@@ -78,11 +77,15 @@ ${pad0(times[0], 2)}:\
 ${pad0(times[1], 2)}.\
 ${pad0(Math.floor(times[2]), 2)}`;
   }
+  _stopWatch() {
+    this.running = false;
+    this.time = null;
+  }
 
   _addLap() {
     let {recordCounter, record} = this.state;
     recordCounter++;
-    record.unshift({title:"Lap "+recordCounter, time: 'AAA'});
+    record.unshift({title:"Lap "+recordCounter, time: this.state.totalTime});
 
     if (recordCounter < record.length) {
       record.pop();
@@ -94,7 +97,10 @@ ${pad0(Math.floor(times[2]), 2)}`;
   }
 
   _resetLap() {
+    this.time = 0;
+    this.times = [0, 0, 0];
     this.setState({
+      totalTime: "00:00.00",
       recordCounter: 0,
       record: [
         {title:"", time:""},
@@ -122,8 +128,11 @@ ${pad0(Math.floor(times[2]), 2)}`;
           <WatchControl addLapFunc={()=> this._addLap()}
             resetLapFunc={()=> this._resetLap()}
             startWatchFunc={()=>this._startWatch()}
+            stopWatchFunc={()=>this._stopWatch()}
           />
-          <WatchRecord record={this.state.record}/>
+          <ScrollView>
+            <WatchRecord record={this.state.record}/>
+          </ScrollView>
         </Content>
     </Container>
     );
@@ -147,7 +156,10 @@ class WatchResult extends Component {
 class WatchControl extends Component {
   static propTypes = {
     addLapFunc: React.PropTypes.func.isRequired,
-    resetLapFunc: React.PropTypes.func.isRequired
+    resetLapFunc: React.PropTypes.func.isRequired,
+    startWatchFunc: React.PropTypes.func.isRequired,
+    stopWatchFunc: React.PropTypes.func.isRequired,
+
   };
   constructor(props){
     super(props);
@@ -165,6 +177,7 @@ class WatchControl extends Component {
         textBtnEnd: 'Reset',
         isStopWatch: false,
       });
+      this.props.stopWatchFunc();
     }else{
       this.setState({ // Click button Start
         textBtnStart: 'Stop',
@@ -193,7 +206,7 @@ class WatchControl extends Component {
 
   render() {
     return (
-      <View>
+      <View style={{height: 120}}>
         <Grid>
           <Col>
             <Row style={watchControl.rowBtn}>
@@ -227,18 +240,16 @@ class WatchRecord extends Component {
 
   render() {
     return (
-      <View style={{marginTop: 10}}>
-        <List dataArray={this.props.record}
-          renderRow={(record) => {
-            return (
-              <ListItem>
-                <Text style={{textAlign: 'left', flex: 1}}>{record.title}</Text>
-                <Text style={{textAlign: 'right', flex: 1}}>{record.time}</Text>
-              </ListItem>
-            )
-          }}>
-        </List>
-      </View>
+      <List dataArray={this.props.record}
+        renderRow={(record) => {
+          return (
+            <ListItem>
+              <Text style={{textAlign: 'left', flex: 1}}>{record.title}</Text>
+              <Text style={{textAlign: 'right', flex: 1}}>{record.time}</Text>
+            </ListItem>
+          )
+        }}>
+      </List>
     );
   }
 }
@@ -256,7 +267,7 @@ var styles = StyleSheet.create({
 var watchControl = StyleSheet.create({
   rowBtn: {
     paddingTop: 10,
-    paddingBottom: 10,
+    paddingBottom: 50,
     justifyContent: 'center',
     alignItems: 'center'
   },
