@@ -22,24 +22,40 @@ export default class Dashboard extends Component {
   };
 
   _blockLesson(){
-    return this.state.lesson.map(function(data, index) {
-      return(
-        <Col style={styles.colLesson}>
+    let arrColData = [];
+    let arrRowData = [];
+    let countLesson = this.state.lesson.length;
+
+    this.state.lesson.map(function(data, index) {
+      let number  = index+1;
+      let colData = <Col style={styles.colLesson}>
           <Button transparent block style={styles.itemLesson} onPress={()=>{
             var actionName = Actions[data.component];
             return actionName({dataLesson: data});
           }}>
             <Icon name={data.icon} style={[{color:data.color}]}/>
-            {data.title}
+            <Text>{data.title}</Text>
           </Button>
         </Col>
-      );
+
+      arrColData.push(colData);
+      if (number%3==0) {
+        arrRowData.push(<Row>{arrColData}</Row>);
+        arrColData = [];
+      } else if (number==countLesson) {
+        for (let i = 0; i < (3-number%3); i++) {
+            arrColData.push(<Col></Col>);
+        }
+        arrRowData.push(<Row>{arrColData}</Row>);
+        arrColData = [];
+      }
     });
+
+    return(<Grid>{arrRowData}</Grid>);
   };
 
   render() {
     var dataLesson = this._blockLesson();
-
     return (
       <Container>
         <Header>
@@ -50,11 +66,9 @@ export default class Dashboard extends Component {
         </Header>
 
         <Content>
-          <Grid>
-            <Row>{dataLesson}</Row>
-          </Grid>
+          {dataLesson}
         </Content>
-      </Container>
+    </Container>
     );
   };
 
@@ -70,8 +84,7 @@ var styles = StyleSheet.create({
     justifyContent: 'center'
   },
   itemLesson:{
-    paddingTop: 10,
-    paddingBottom: 10,
-    flex: 1
+    flex: 1,
+    borderRadius: 0,
   },
 });

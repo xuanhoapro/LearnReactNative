@@ -14,7 +14,7 @@ import { Actions } from 'react-native-router-flux';
 import Video from 'react-native-video';
 
 
-export default class Weather extends Component {
+export default class VideoPlayer extends Component {
   constructor(props){
     super(props);
   }

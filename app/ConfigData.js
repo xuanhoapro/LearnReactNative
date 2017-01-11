@@ -13,6 +13,14 @@ var ConfigData = {
   },
   {
     key:1,
+    title:"Video",
+    component: 'VideoPlayer',
+    icon: "ios-color-filter",
+    color:"#777",
+    hideNav: true,
+  },
+  {
+    key:2,
     title:"Weather",
     component: 'Weather',
     icon: "ios-partly-sunny",
@@ -20,7 +28,7 @@ var ConfigData = {
     hideNav: true,
   },
   {
-    key:2,
+    key:3,
     title:"Twitter",
     component: 'Twitter',
     icon: "logo-twitter",
